@@ -10,11 +10,10 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
 - Chọn các kích thước mô hình Whisper khác nhau để cân bằng giữa độ chính xác và tốc độ
 - Tự động lưu các bản ghi âm và bản chuyển đổi trong cấu trúc thư mục có tổ chức
 - Sao chép bản chuyển đổi vào clipboard chỉ với một cú nhấp chuột
+![image](https://github.com/user-attachments/assets/0d648265-5c5e-4156-98f3-489a6fd71794)
 
 ## Yêu Cầu
 
-- Python 3.8+
-- Trình duyệt web hỗ trợ MediaRecorder API (hầu hết các trình duyệt hiện đại)
 - RAM và sức mạnh xử lý đủ để chạy các mô hình Whisper:
   - Đề xuất: 16GB RAM, GPU hỗ trợ CUDA (cho các mô hình trung bình/lớn)
   - Tối thiểu: 8GB RAM (cho các mô hình nhỏ/cơ bản)
@@ -42,7 +41,23 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
    ```
    pip install -r backend/requirements.txt
    ```
+4. tải ffmpeg về hệ thống:
+ ```
+  # on Ubuntu or Debian
+sudo apt update && sudo apt install ffmpeg
 
+# on Arch Linux
+sudo pacman -S ffmpeg
+
+# on MacOS using Homebrew (https://brew.sh/)
+brew install ffmpeg
+
+# on Windows using Chocolatey (https://chocolatey.org/)
+choco install ffmpeg
+
+# on Windows using Scoop (https://scoop.sh/)
+scoop install ffmpeg
+   ```
 4. Khởi động ứng dụng:
    ```
    cd backend
@@ -54,15 +69,6 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
    http://localhost:8000
    ```
 
-## Cách Sử Dụng
-
-1. Chọn ngôn ngữ bạn muốn (tiếng Anh hoặc tiếng Việt)
-2. Chọn kích thước mô hình Whisper (cân bằng giữa tốc độ và độ chính xác)
-3. Nhấp vào nút microphone để bắt đầu ghi âm
-4. Nói vào microphone của bạn
-5. Nhấp vào nút dừng để kết thúc ghi âm
-6. Chờ quá trình chuyển đổi hoàn tất
-7. Xem bản chuyển đổi của bạn và sử dụng nút sao chép để sao chép vào clipboard
 
 ## Cấu Trúc Thư Mục
 
