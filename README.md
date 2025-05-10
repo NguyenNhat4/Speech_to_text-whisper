@@ -93,6 +93,3 @@ speech-to-text-app/
 - **Chuyển Đổi Giọng Nói Thành Văn Bản**: Mô hình Whisper của OpenAI (chạy cục bộ)
 - **Lưu Trữ Dữ Liệu**: Hệ thống tệp cục bộ với cấu trúc thư mục có tổ chức
 
-## Giấy Phép
-
-Dự án này là mã nguồn mở và được cung cấp theo [Giấy Phép MIT]. 
