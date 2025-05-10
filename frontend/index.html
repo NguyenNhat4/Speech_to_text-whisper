@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech-to-Text App</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Speech-to-Text Converter</h1>
+        </header>
+        
+        <main>
+            <div class="control-panel">
+                <div class="language-selector">
+                    <label for="language">Language:</label>
+                    <select id="language">
+                        <option value="english" selected>English</option>
+                        <option value="tiếng việt">Tiếng Việt</option>
+                    </select>
+                </div>
+
+                <div class="model-selector">
+                    <label for="model">Model Size:</label>
+                    <select id="model">
+                        <option value="tiny">Tiny (Fast)</option>
+                        <option value="base" selected>Base</option>
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large (High Quality)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="recording-section">
+                <div class="record-button-container">
+                    <button id="recordButton" class="record-button">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <div id="recordingStatus" class="recording-status">Ready to record</div>
+                </div>
+                
+                <div class="audio-control">
+                    <audio id="audioPlayback" controls></audio>
+                </div>
+                
+                <div class="processing-status" id="processingStatus">
+                    <div class="spinner hidden" id="spinner"></div>
+                    <div id="statusMessage"></div>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <div class="result-header">
+                    <h2>Transcription</h2>
+                    <button id="copyButton" class="copy-button" title="Copy to clipboard">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="transcript-container">
+                    <textarea id="transcriptText" readonly placeholder="Your transcription will appear here..."></textarea>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Speech-to-Text Converter - Using OpenAI Whisper Model</p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html> 
