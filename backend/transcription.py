@@ -12,7 +12,19 @@ models = {}
 
 def get_device():
     """Determine the appropriate device (CUDA GPU or CPU) for running Whisper."""
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    cuda_available = torch.cuda.is_available()
+    logger.info(f"CUDA available: {cuda_available}")
+    
+    if cuda_available:
+        logger.info(f"CUDA version: {torch.version.cuda}")
+        logger.info(f"GPU device: {torch.cuda.get_device_name(0)}")
+        logger.info(f"GPU device count: {torch.cuda.device_count()}")
+        device = "cuda"
+    else:
+        logger.info("No CUDA device available. Using CPU instead.")
+        device = "cpu"
+        
+    return device
 
 def get_model(model_size="base"):
     """
@@ -34,16 +46,32 @@ def get_model(model_size="base"):
     # Log model loading information
     logger.info(f"Loading Whisper {model_size} model on {device}...")
     
-    # Load the model
-    model = whisper.load_model(model_size, device=device)
-    
-    # Cache the model for future use
-    models[model_key] = model
-    
-    logger.info(f"Whisper {model_size} model loaded successfully")
-    return model
+    try:
+        # Force CUDA device if it's available
+        if device == "cuda":
+            # Set PyTorch to use GPU
+            torch.cuda.set_device(0)
+            
+        # Load the model
+        model = whisper.load_model(model_size, device=device)
+        
+        # Cache the model for future use
+        models[model_key] = model
+        
+        logger.info(f"Whisper {model_size} model loaded successfully")
+        return model
+    except Exception as e:
+        logger.error(f"Error loading Whisper model: {str(e)}")
+        # Fallback to CPU if GPU loading fails
+        if device == "cuda":
+            logger.info("Falling back to CPU model")
+            model = whisper.load_model(model_size, device="cpu")
+            models[f"{model_size}_cpu"] = model
+            return model
+        else:
+            raise
 
-def transcribe_audio(audio_path, language="english", model_size="base"):
+def transcribe_audio(audio_path, language="tiếng việt", model_size="base"):
     """
     Transcribe the audio file using the Whisper model.
     
@@ -61,8 +89,8 @@ def transcribe_audio(audio_path, language="english", model_size="base"):
             "english": "en",
             "tiếng việt": "vi"
         }
-        
-        language_code = language_map.get(language.lower(), "en")
+        audio_path = os.path.abspath(audio_path)
+        language_code = language_map.get(language.lower(), "vi")
         
         # Log transcription start
         logger.info(f"Starting transcription for {audio_path} in {language_code}")
