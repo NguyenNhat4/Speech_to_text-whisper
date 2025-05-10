@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+
     // Upload audio to server
     async function uploadAudio() {
         try {
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('language', languageSelect.value);
             
             // Upload the audio file
-            const response = await fetch('/api/upload-audio', {
+            const response = await fetch('http://localhost:8000/api/upload-audio', {
                 method: 'POST',
                 body: formData,
             });
@@ -122,9 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             statusMessage.textContent = 'Transcribing audio...';
-            
             // Request transcription
-            const response = await fetch('/api/transcribe', {
+            const response = await fetch('http://localhost:8000/api/transcribe', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     model_size: modelSelect.value
                 }),
             });
-            
+            console.log("response " + response.body);
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
             }
