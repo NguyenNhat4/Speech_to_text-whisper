@@ -1,6 +1,6 @@
 # Ứng Dụng Web Chuyển Đổi Giọng Nói Thành Văn Bản
 
-Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng nói thành văn bản bằng cách sử dụng mô hình Whisper của OpenAI chạy cục bộ. Ứng dụng hỗ trợ cả tiếng Anh và tiếng Việt.
+ ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng nói thành văn bản bằng cách sử dụng mô hình Whisper của OpenAI chạy cục bộ. Ứng dụng hỗ trợ cả tiếng Anh và tiếng Việt.
 
 ## Tính Năng
 
@@ -10,7 +10,9 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
 - Chọn các kích thước mô hình Whisper khác nhau để cân bằng giữa độ chính xác và tốc độ
 - Tự động lưu các bản ghi âm và bản chuyển đổi trong cấu trúc thư mục có tổ chức
 - Sao chép bản chuyển đổi vào clipboard chỉ với một cú nhấp chuột
-![image](https://github.com/user-attachments/assets/0d648265-5c5e-4156-98f3-489a6fd71794)
+## UI
+![image](https://github.com/user-attachments/assets/542f58ec-81f8-45a6-90c3-1ca51eaf6ccb)
+
 
 ## Yêu Cầu
 
@@ -66,7 +68,7 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
 
 5. Mở trình duyệt web của bạn và điều hướng đến:
    ```
-   http://localhost:8000
+   http://localhost:8000/app/
    ```
 
 
