@@ -6,6 +6,14 @@ import shutil
 from datetime import datetime
 import logging
 from transcription import transcribe_audio, save_transcription
+from pydantic import BaseModel
+
+# Define request models for validation
+class TranscriptionRequest(BaseModel):
+    date_folder: str
+    session_folder: str
+    language: str = "english"
+    model_size: str = "base"
 
 # Configure logging
 logging.basicConfig(
@@ -19,20 +27,20 @@ app = FastAPI(title="Speech-to-Text API")
 # Configure CORS to allow requests from the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"],  # Frontend URL
+    allow_origins=["http://localhost:8000"],  # Frontend URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Base directory for storing recordings
-STORAGE_DIR = "storage"
+STORAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "storage"))
 
 # Create storage directory if it doesn't exist
 os.makedirs(STORAGE_DIR, exist_ok=True)
 
 # Serve the frontend static files
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+app.mount("/app", StaticFiles(directory="frontend", html=True), name="frontend")
 
 @app.get("/api/health")
 def health_check():
@@ -40,7 +48,7 @@ def health_check():
     return {"status": "ok"}
 
 @app.post("/api/upload-audio")
-async def upload_audio(file: UploadFile = File(...), language: str = "english"):
+async def upload_audio(file: UploadFile = File(...), language: str = "tiếng việt"):
     """
     Endpoint to upload audio file and store it
     
@@ -85,31 +93,28 @@ async def upload_audio(file: UploadFile = File(...), language: str = "english"):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/transcribe")
-async def transcribe(date_folder: str, session_folder: str, language: str = "english", model_size: str = "base"):
+async def transcribe(request: TranscriptionRequest):
     """
     Endpoint to transcribe an audio file
     
     Args:
-        date_folder: The date folder containing the session folder
-        session_folder: The session folder containing the audio file
-        language: The language of the audio (english or vietnamese)
-        model_size: The Whisper model size to use for transcription
+        request: The TranscriptionRequest containing path and settings
     
     Returns:
         Dict with the transcription and file paths
     """
     try:
         # Validate language
-        if language.lower() not in ["english", "tiếng việt"]:
+        if request.language.lower() not in ["english", "tiếng việt"]:
             raise HTTPException(status_code=400, detail="Unsupported language")
-            
+             
         # Validate model size
-        valid_model_sizes = ["tiny", "base", "small", "medium", "large"]
-        if model_size.lower() not in valid_model_sizes:
+        valid_model_sizes = ["tiny", "base", "small", "medium", "large-v3"]
+        if request.model_size.lower() not in valid_model_sizes:
             raise HTTPException(status_code=400, detail=f"Invalid model size. Choose from: {', '.join(valid_model_sizes)}")
         
         # Construct the path to the audio file
-        session_dir = os.path.join(STORAGE_DIR, date_folder, session_folder)
+        session_dir = os.path.join(STORAGE_DIR, request.date_folder, request.session_folder)
         audio_path = os.path.join(session_dir, "audio.webm")
         
         # Check if audio file exists
@@ -117,7 +122,7 @@ async def transcribe(date_folder: str, session_folder: str, language: str = "eng
             raise HTTPException(status_code=404, detail="Audio file not found")
             
         # Transcribe the audio
-        transcription = transcribe_audio(audio_path, language, model_size)
+        transcription = transcribe_audio(audio_path, request.language, request.model_size)
         
         # Save the transcription
         transcription_path = os.path.join(session_dir, "transcription.txt")

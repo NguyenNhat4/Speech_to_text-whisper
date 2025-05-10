@@ -23,7 +23,7 @@ venv/
 .venv/
 
 # Storage directory - contains user recordings and transcriptions
-storage/
+
 
 # IDE files
 .idea/
