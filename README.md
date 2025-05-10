@@ -42,21 +42,21 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
    pip install -r backend/requirements.txt
    ```
 4. tải ffmpeg về hệ thống:
- ```
-  # on Ubuntu or Debian
-sudo apt update && sudo apt install ffmpeg
-
-# on Arch Linux
-sudo pacman -S ffmpeg
-
-# on MacOS using Homebrew (https://brew.sh/)
-brew install ffmpeg
-
-# on Windows using Chocolatey (https://chocolatey.org/)
-choco install ffmpeg
-
-# on Windows using Scoop (https://scoop.sh/)
-scoop install ffmpeg
+   ```
+    # on Ubuntu or Debian
+    sudo apt update && sudo apt install ffmpeg
+    
+    # on Arch Linux
+    sudo pacman -S ffmpeg
+    
+    # on MacOS using Homebrew (https://brew.sh/)
+    brew install ffmpeg
+    
+    # on Windows using Chocolatey (https://chocolatey.org/)
+    choco install ffmpeg
+    
+    # on Windows using Scoop (https://scoop.sh/)
+    scoop install ffmpeg
    ```
 4. Khởi động ứng dụng:
    ```
