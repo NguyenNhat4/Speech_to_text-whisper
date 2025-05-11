@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM elements
+   
     const recordButton = document.getElementById('recordButton');
     const audioPlayback = document.getElementById('audioPlayback');
     const recordingStatus = document.getElementById('recordingStatus');
@@ -33,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.onstop = async () => {
                 audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 audioPlayback.src = URL.createObjectURL(audioBlob);
-                
                 // Upload the audio file
                 await uploadAudio();
             };
@@ -89,20 +89,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('file', audioBlob, 'audio.webm');
             formData.append('language', languageSelect.value);
-            
+          
             // Upload the audio file
+            
             const response = await fetch('http://localhost:8000/api/upload-audio', {
                 method: 'POST',
                 body: formData,
             });
-            
+           
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
             }
             
             // Get the response data
             sessionInfo = await response.json();
-            
+           
             // Start transcription
             await transcribeAudio();
             
@@ -124,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             statusMessage.textContent = 'Transcribing audio...';
             // Request transcription
+       
             const response = await fetch('http://localhost:8000/api/transcribe', {
                 method: 'POST',
                 headers: {
@@ -136,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     model_size: modelSelect.value
                 }),
             });
-            console.log("response " + response.body);
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
             }

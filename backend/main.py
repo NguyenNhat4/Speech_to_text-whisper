@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, Form ,UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
@@ -8,12 +8,6 @@ import logging
 from transcription import transcribe_audio, save_transcription
 from pydantic import BaseModel
 
-# Define request models for validation
-class TranscriptionRequest(BaseModel):
-    date_folder: str
-    session_folder: str
-    language: str = "english"
-    model_size: str = "base"
 
 # Configure logging
 logging.basicConfig(
@@ -42,13 +36,16 @@ os.makedirs(STORAGE_DIR, exist_ok=True)
 # Serve the frontend static files
 app.mount("/app", StaticFiles(directory="frontend", html=True), name="frontend")
 
+
+
+
 @app.get("/api/health")
 def health_check():
     """Health check endpoint to verify the API is running."""
     return {"status": "ok"}
 
 @app.post("/api/upload-audio")
-async def upload_audio(file: UploadFile = File(...), language: str = "tiếng việt"):
+async def upload_audio(file: UploadFile = File(...), language: str =Form("tiếng việt") ):
     """
     Endpoint to upload audio file and store it
     
@@ -60,6 +57,8 @@ async def upload_audio(file: UploadFile = File(...), language: str = "tiếng vi
         Dict with the storage path information
     """
     try:
+        logger.info(f"Language being chosen: {language}")
+        
         # Validate language
         if language.lower() not in ["english", "tiếng việt"]:
             raise HTTPException(status_code=400, detail="Unsupported language")
@@ -78,7 +77,8 @@ async def upload_audio(file: UploadFile = File(...), language: str = "tiếng vi
         with open(audio_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
-        logger.info(f"Audio saved to {audio_path}")
+        logger.info(f"Audio file uploaded successfully")
+        # logger.info(f"Language being chosen: {language}")
         
         return {
             "message": "Audio file uploaded successfully",
@@ -91,6 +91,12 @@ async def upload_audio(file: UploadFile = File(...), language: str = "tiếng vi
     except Exception as e:
         logger.error(f"Error uploading audio: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+# Define request models for validation
+class TranscriptionRequest(BaseModel):
+    date_folder: str
+    session_folder: str
+    language: str = "tiếng việt"
+    model_size: str = "base"
 
 @app.post("/api/transcribe")
 async def transcribe(request: TranscriptionRequest):

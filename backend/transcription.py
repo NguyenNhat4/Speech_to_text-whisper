@@ -16,7 +16,6 @@ def get_device():
     logger.info(f"CUDA available: {cuda_available}")
     
     if cuda_available:
-        logger.info(f"CUDA version: {torch.version.cuda}")
         logger.info(f"GPU device: {torch.cuda.get_device_name(0)}")
         logger.info(f"GPU device count: {torch.cuda.device_count()}")
         device = "cuda"
@@ -84,6 +83,8 @@ def transcribe_audio(audio_path, language="tiếng việt", model_size="base"):
         Transcription text
     """
     try:
+        logger.info(f"Model used: {model_size}")
+        
         # Map UI language choices to Whisper language codes
         language_map = {
             "english": "en",
