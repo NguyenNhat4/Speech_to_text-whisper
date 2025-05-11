@@ -1,6 +1,6 @@
 # Ứng Dụng Web Chuyển Đổi Giọng Nói Thành Văn Bản
 
-Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng nói thành văn bản bằng cách sử dụng mô hình Whisper của OpenAI chạy cục bộ. Ứng dụng hỗ trợ cả tiếng Anh và tiếng Việt.
+ ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng nói thành văn bản bằng cách sử dụng mô hình Whisper của OpenAI chạy cục bộ. Ứng dụng hỗ trợ cả tiếng Anh và tiếng Việt.
 
 ## Tính Năng
 
@@ -10,6 +10,9 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
 - Chọn các kích thước mô hình Whisper khác nhau để cân bằng giữa độ chính xác và tốc độ
 - Tự động lưu các bản ghi âm và bản chuyển đổi trong cấu trúc thư mục có tổ chức
 - Sao chép bản chuyển đổi vào clipboard chỉ với một cú nhấp chuột
+## UI
+![image](https://github.com/user-attachments/assets/542f58ec-81f8-45a6-90c3-1ca51eaf6ccb)
+
 
 ## Yêu Cầu
 
@@ -40,9 +43,29 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
    ```
    pip install -r backend/requirements.txt
    ```
+<<<<<<< HEAD
 4. tải FFmpeg
 
 
+=======
+4. tải ffmpeg về hệ thống:
+   ```
+    # on Ubuntu or Debian
+    sudo apt update && sudo apt install ffmpeg
+    
+    # on Arch Linux
+    sudo pacman -S ffmpeg
+    
+    # on MacOS using Homebrew (https://brew.sh/)
+    brew install ffmpeg
+    
+    # on Windows using Chocolatey (https://chocolatey.org/)
+    choco install ffmpeg
+    
+    # on Windows using Scoop (https://scoop.sh/)
+    scoop install ffmpeg
+   ```
+>>>>>>> 743db06889c9f9d28b7281c8dcb54d83d836e729
 4. Khởi động ứng dụng:
    ```
    cd backend
@@ -51,18 +74,9 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
 
 5. Mở trình duyệt web của bạn và điều hướng đến:
    ```
-   http://localhost:8000
+   http://localhost:8000/app/
    ```
 
-## Cách Sử Dụng
-
-1. Chọn ngôn ngữ bạn muốn (tiếng Anh hoặc tiếng Việt)
-2. Chọn kích thước mô hình Whisper (cân bằng giữa tốc độ và độ chính xác)
-3. Nhấp vào nút microphone để bắt đầu ghi âm
-4. Nói vào microphone của bạn
-5. Nhấp vào nút dừng để kết thúc ghi âm
-6. Chờ quá trình chuyển đổi hoàn tất
-7. Xem bản chuyển đổi của bạn và sử dụng nút sao chép để sao chép vào clipboard
 
 ## Cấu Trúc Thư Mục
 
@@ -93,6 +107,3 @@ speech-to-text-app/
 - **Chuyển Đổi Giọng Nói Thành Văn Bản**: Mô hình Whisper của OpenAI (chạy cục bộ)
 - **Lưu Trữ Dữ Liệu**: Hệ thống tệp cục bộ với cấu trúc thư mục có tổ chức
 
-## Giấy Phép
-
-Dự án này là mã nguồn mở và được cung cấp theo [Giấy Phép MIT]. 
