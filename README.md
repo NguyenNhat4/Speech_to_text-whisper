@@ -13,8 +13,6 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
 
 ## Yêu Cầu
 
-- Python 3.8+
-- Trình duyệt web hỗ trợ MediaRecorder API (hầu hết các trình duyệt hiện đại)
 - RAM và sức mạnh xử lý đủ để chạy các mô hình Whisper:
   - Đề xuất: 16GB RAM, GPU hỗ trợ CUDA (cho các mô hình trung bình/lớn)
   - Tối thiểu: 8GB RAM (cho các mô hình nhỏ/cơ bản)
@@ -42,6 +40,8 @@ Một ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng
    ```
    pip install -r backend/requirements.txt
    ```
+4. tải FFmpeg
+
 
 4. Khởi động ứng dụng:
    ```
