@@ -153,19 +153,18 @@ async def transcribe(request: TranscriptionRequest):
 # We will add more endpoints for speech-to-text conversion later
 
 # Preload the model during startup
-@app.on_event("startup")
-async def startup_event():
+@app.get("/api/preload-model")
+async def preload_model_endpoint():
     try:
-        # Optimize CUDA settings if available
-        if torch.cuda.is_available():
-            # Set TensorFloat32 for better performance
-            torch.set_float32_matmul_precision('high')
-            # Pre-allocate memory to avoid fragmentation
-            torch.cuda.empty_cache()
-        
+
+        start_time = time.time()
+        # Transcribe the audio
         # Preload the large-v3 model
         logger.info("Preloading large-v3 model at startup...")
         preload_model("large-v3")
+        end_time = time.time()
+        duration = end_time - start_time
+        return {"message": f"Model preloaded successfully in {duration:.3f} seconds"}
     except Exception as e:
         logger.error(f"Error during startup: {str(e)}")
 
