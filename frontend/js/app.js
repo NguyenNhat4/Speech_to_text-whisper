@@ -17,7 +17,22 @@ document.addEventListener('DOMContentLoaded', () => {
     let isRecording = false;
     let audioBlob = null;
     let sessionInfo = null;
+    let timerInterval;
+    let secondsElapsed = 0;
+    function startTimer() {
+        secondsElapsed = 0;
+        timerInterval = setInterval(() => {
+            secondsElapsed++;
+            const minutes = Math.floor(secondsElapsed / 60);
+            const seconds = secondsElapsed % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }    
     
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
     // Initialize MediaRecorder
     async function setupMediaRecorder() {
         try {
@@ -57,7 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
             audioChunks = [];
             mediaRecorder.start();
             isRecording = true;
-            
+              // Start the timer
+            startTimer();
             // Update UI
             recordButton.classList.add('recording');
             recordButton.innerHTML = '<i class="fas fa-stop"></i>';
@@ -69,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Stop recording
             mediaRecorder.stop();
             isRecording = false;
-            
+            stopTimer();
             // Update UI
             recordButton.classList.remove('recording');
             recordButton.innerHTML = '<i class="fas fa-microphone"></i>';
@@ -91,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('language', languageSelect.value);
           
             // Upload the audio file
-            
+            const startTime = new Date().getTime();
             const response = await fetch('http://localhost:8000/api/upload-audio', {
                 method: 'POST',
                 body: formData,
@@ -103,9 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Get the response data
             sessionInfo = await response.json();
-           
+            const endTime = new Date().getTime();
+            const duration = (endTime - startTime) ;
             // Start transcription
             await transcribeAudio();
+            alert(`Upload took ${duration.toFixed(2)} milliseconds`);
             
         } catch (error) {
             console.error('Error uploading audio:', error);
