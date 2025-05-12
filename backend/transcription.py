@@ -24,25 +24,10 @@ class ModelPool:
             if key in self.models:
                 self.last_used[key] = time.time()
                 return self.models[key]
+            logger.info(f"Loading Whisper {model_size} model on {device}...")
             
-            logger.info(f"Loading model {model_size} on {device} with optimizations")
-            if device == "cuda":
-                # Optimize CUDA settings for faster inference
-                # Set cuda stream for better performance
-                with torch.cuda.stream(torch.cuda.Stream()):
-                    # Use automatic mixed precision (AMP) for faster computation
-                    with torch.cuda.amp.autocast():
-                        model = whisper.load_model(model_size, device=device)
-                        # Convert model to half precision (FP16)
-                        model = model.half()
+            model = whisper.load_model(model_size, device=device)
                 
-                # Set model to evaluation mode for inference
-                model.eval()
-                # Use inference mode to disable gradient computation
-                torch.inference_mode(True)
-            else:
-                model = whisper.load_model(model_size, device=device)
-                model.eval()
             
             # Remove oldest model if pool is full
             if len(self.models) >= self.max_models:

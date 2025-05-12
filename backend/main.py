@@ -5,10 +5,12 @@ import os
 import shutil
 from datetime import datetime
 import logging
-from transcription import transcribe_audio, save_transcription
+from transcription import transcribe_with_pool, save_transcription
 from pydantic import BaseModel
 import time
-
+import torch
+import subprocess
+from model_preload import preload_model
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -128,7 +130,7 @@ async def transcribe(request: TranscriptionRequest):
             raise HTTPException(status_code=404, detail="Audio file not found")
         start_time = time.time()
         # Transcribe the audio
-        transcription = transcribe_audio(audio_path, request.language, request.model_size)
+        transcription = transcribe_with_pool(audio_path, request.language, request.model_size)
         end_time = time.time()
         # Save the transcription
         duration = end_time - start_time
@@ -150,6 +152,25 @@ async def transcribe(request: TranscriptionRequest):
 
 # We will add more endpoints for speech-to-text conversion later
 
+# Preload the model during startup
+@app.on_event("startup")
+async def startup_event():
+    try:
+        # Optimize CUDA settings if available
+        if torch.cuda.is_available():
+            # Set TensorFloat32 for better performance
+            torch.set_float32_matmul_precision('high')
+            # Pre-allocate memory to avoid fragmentation
+            torch.cuda.empty_cache()
+        
+        # Preload the large-v3 model
+        logger.info("Preloading large-v3 model at startup...")
+        preload_model("large-v3")
+    except Exception as e:
+        logger.error(f"Error during startup: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True) 
+    # Set number of workers to 1 to avoid model duplication
+    # Set timeout to accommodate longer processing times
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False, workers=1, timeout_keep_alive=120) 
