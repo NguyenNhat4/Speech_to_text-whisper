@@ -15,21 +15,39 @@ class ModelPool:
         self.last_used = {}
         self.max_models = max_models
         self.lock = Lock()
-        
+  
     def get_model(self, model_size):
         with self.lock:
-            key = f"{model_size}_{get_device()}"
+            device = get_device()
+            key = f"{model_size}_{device}"
             
             if key in self.models:
                 self.last_used[key] = time.time()
                 return self.models[key]
             
-            # Load new model
-            model = whisper.load_model(model_size, device=get_device())
+            logger.info(f"Loading model {model_size} on {device} with optimizations")
+            if device == "cuda":
+                # Optimize CUDA settings for faster inference
+                # Set cuda stream for better performance
+                with torch.cuda.stream(torch.cuda.Stream()):
+                    # Use automatic mixed precision (AMP) for faster computation
+                    with torch.cuda.amp.autocast():
+                        model = whisper.load_model(model_size, device=device)
+                        # Convert model to half precision (FP16)
+                        model = model.half()
+                
+                # Set model to evaluation mode for inference
+                model.eval()
+                # Use inference mode to disable gradient computation
+                torch.inference_mode(True)
+            else:
+                model = whisper.load_model(model_size, device=device)
+                model.eval()
             
             # Remove oldest model if pool is full
             if len(self.models) >= self.max_models:
                 oldest_key = min(self.last_used.items(), key=lambda x: x[1])[0]
+                logger.info(f"Removing oldest model {oldest_key} from pool")
                 del self.models[oldest_key]
                 del self.last_used[oldest_key]
             
@@ -103,22 +121,7 @@ def get_model(model_size="base"):
             return model
         else:
             raise
-def preprocess_audio(audio_path, output_path="processed_audio.wav"):
-    """Tối ưu audio trước khi transcribe"""
-    import subprocess
-    import tempfile
-    
-    # Convert về định dạng 16kHz, mono, wav - định dạng tối ưu cho Whisper
-    command = [
-        'ffmpeg', '-i', audio_path,
-        '-ar', '16000',  # Sample rate 16kHz
-        '-ac', '1',      # Mono
-        '-c:a', 'pcm_s16le',  # 16-bit PCM
-        '-y', output_path
-    ]
-    
-    subprocess.run(command, capture_output=True)
-    return output_path
+
 
 def transcribe_audio(audio_path, language="tiếng việt", model_size="base"):
     """
