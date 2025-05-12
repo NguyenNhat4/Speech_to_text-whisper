@@ -7,7 +7,7 @@ from datetime import datetime
 import logging
 from transcription import transcribe_audio, save_transcription
 from pydantic import BaseModel
-
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -126,11 +126,14 @@ async def transcribe(request: TranscriptionRequest):
         # Check if audio file exists
         if not os.path.exists(audio_path):
             raise HTTPException(status_code=404, detail="Audio file not found")
-            
+        start_time = time.time()
         # Transcribe the audio
         transcription = transcribe_audio(audio_path, request.language, request.model_size)
-        
+        end_time = time.time()
         # Save the transcription
+        duration = end_time - start_time
+        logger.info(f"Transcription took {duration:.6f} seconds")
+        
         transcription_path = os.path.join(session_dir, "transcription.txt")
         save_transcription(transcription, transcription_path)
         

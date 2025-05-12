@@ -2,10 +2,44 @@ import os
 import logging
 import whisper
 import torch
+from threading import Lock
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+class ModelPool:
+    def __init__(self, max_models=3):
+        self.models = {}
+        self.last_used = {}
+        self.max_models = max_models
+        self.lock = Lock()
+        
+    def get_model(self, model_size):
+        with self.lock:
+            key = f"{model_size}_{get_device()}"
+            
+            if key in self.models:
+                self.last_used[key] = time.time()
+                return self.models[key]
+            
+            # Load new model
+            model = whisper.load_model(model_size, device=get_device())
+            
+            # Remove oldest model if pool is full
+            if len(self.models) >= self.max_models:
+                oldest_key = min(self.last_used.items(), key=lambda x: x[1])[0]
+                del self.models[oldest_key]
+                del self.last_used[oldest_key]
+            
+            self.models[key] = model
+            self.last_used[key] = time.time()
+            
+            return model
+
+# Tạo global model pool
+model_pool = ModelPool(max_models=3)
 
 # Global variable to store the loaded models
 models = {}
@@ -69,6 +103,22 @@ def get_model(model_size="base"):
             return model
         else:
             raise
+def preprocess_audio(audio_path, output_path="processed_audio.wav"):
+    """Tối ưu audio trước khi transcribe"""
+    import subprocess
+    import tempfile
+    
+    # Convert về định dạng 16kHz, mono, wav - định dạng tối ưu cho Whisper
+    command = [
+        'ffmpeg', '-i', audio_path,
+        '-ar', '16000',  # Sample rate 16kHz
+        '-ac', '1',      # Mono
+        '-c:a', 'pcm_s16le',  # 16-bit PCM
+        '-y', output_path
+    ]
+    
+    subprocess.run(command, capture_output=True)
+    return output_path
 
 def transcribe_audio(audio_path, language="tiếng việt", model_size="base"):
     """
@@ -120,6 +170,47 @@ def transcribe_audio(audio_path, language="tiếng việt", model_size="base"):
         logger.error(f"Transcription error: {str(e)}")
         raise
         
+def transcribe_with_pool(audio_path, language="tiếng việt", model_size="base"):
+    """Transcribe sử dụng model pool"""
+    try:
+
+        model = model_pool.get_model(model_size)
+            
+        logger.info(f"Model used: {model_size}")
+
+        # Map UI language choices to Whisper language codes
+        language_map = {
+            "english": "en",
+            "tiếng việt": "vi"
+        }
+        audio_path = os.path.abspath(audio_path)
+        language_code = language_map.get(language.lower(), "vi")
+
+        # Log transcription start
+        logger.info(f"Starting transcription for {audio_path} in {language_code}")
+        # Set transcription options
+        transcribe_options = {
+            "language": language_code,
+            "task": "transcribe",
+        }
+
+        # Perform transcription
+        result = model.transcribe(audio_path, **transcribe_options)
+
+        # Extract and return the transcribed text
+        transcription = result["text"]
+
+        # Log successful transcription
+        logger.info(f"Transcription complete: {len(transcription)} characters")
+
+        return transcription
+    
+    except Exception as e:
+        logger.error(f"Transcription error: {str(e)}")
+        raise
+
+    
+    
 def save_transcription(transcription, output_path):
     """
     Save the transcription text to a file.
