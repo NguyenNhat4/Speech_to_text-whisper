@@ -1,4 +1,4 @@
-# Ứng Dụng Web Chuyển Đổi Giọng Nói Thành Văn Bản
+# Chuyển Đổi Giọng Nói Thành Văn Bản
 
  ứng dụng web giúp người dùng nhanh chóng chuyển đổi giọng nói thành văn bản bằng cách sử dụng mô hình Whisper của OpenAI chạy cục bộ. Ứng dụng hỗ trợ cả tiếng Anh và tiếng Việt.
 
@@ -43,11 +43,8 @@
    ```
    pip install -r backend/requirements.txt
    ```
-<<<<<<< HEAD
-4. tải FFmpeg
 
 
-=======
 4. tải ffmpeg về hệ thống:
    ```
     # on Ubuntu or Debian
@@ -65,14 +62,14 @@
     # on Windows using Scoop (https://scoop.sh/)
     scoop install ffmpeg
    ```
->>>>>>> 743db06889c9f9d28b7281c8dcb54d83d836e729
-4. Khởi động ứng dụng:
+
+5. Khởi động ứng dụng:
    ```
    cd backend
    python main.py
    ```
 
-5. Mở trình duyệt web của bạn và điều hướng đến:
+6. Mở trình duyệt web của bạn và điều hướng đến:
    ```
    http://localhost:8000/app/
    ```
