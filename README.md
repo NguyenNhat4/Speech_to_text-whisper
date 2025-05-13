@@ -65,8 +65,7 @@
 
 5. Khởi động ứng dụng:
    ```
-   cd backend
-   python main.py
+   python backend/main.py
    ```
 
 6. Mở trình duyệt web của bạn và điều hướng đến:
