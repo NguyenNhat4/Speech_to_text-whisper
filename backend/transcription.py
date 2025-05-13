@@ -17,6 +17,10 @@ class ModelPool:
         self.lock = Lock()
   
     def get_model(self, model_size):
+        # Map 'turbo' to 'large-v3-turbo' for consistency with newer releases
+        if model_size.lower() == "turbo":
+            model_size = "large-v3-turbo"
+            
         with self.lock:
             device = get_device()
             key = f"{model_size}_{device}"
@@ -67,11 +71,15 @@ def get_model(model_size="base"):
     Get or load the Whisper model of the specified size.
     
     Args:
-        model_size: Size of the Whisper model ('tiny', 'base', 'small', 'medium', 'large')
+        model_size: Size of the Whisper model ('tiny', 'base', 'small', 'medium', 'large-v3', 'turbo')
         
     Returns:
         The loaded Whisper model
     """
+    # Map 'turbo' to 'large-v3-turbo' for consistency with newer releases
+    if model_size.lower() == "turbo":
+        model_size = "large-v3-turbo"
+        
     device = get_device()
     
     # Check if model is already loaded

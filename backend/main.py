@@ -6,6 +6,7 @@ import shutil
 from datetime import datetime
 import logging
 from transcription import transcribe_with_pool, save_transcription
+from hf_transcription import transcribe_with_hf
 from pydantic import BaseModel
 import time
 import torch
@@ -98,7 +99,8 @@ class TranscriptionRequest(BaseModel):
     date_folder: str
     session_folder: str
     language: str = "tiếng việt"
-    model_size: str = "base"
+    model_size: str = "turbo"  # Changed default to turbo
+    use_hf_model: bool = False
 
 @app.post("/api/transcribe")
 async def transcribe(request: TranscriptionRequest):
@@ -116,10 +118,11 @@ async def transcribe(request: TranscriptionRequest):
         if request.language.lower() not in ["english", "tiếng việt"]:
             raise HTTPException(status_code=400, detail="Unsupported language")
              
-        # Validate model size
-        valid_model_sizes = ["tiny", "base", "small", "medium", "large-v3"]
-        if request.model_size.lower() not in valid_model_sizes:
-            raise HTTPException(status_code=400, detail=f"Invalid model size. Choose from: {', '.join(valid_model_sizes)}")
+        # Validate model size if not using HuggingFace model
+        if not request.use_hf_model:
+            valid_model_sizes = ["tiny", "base", "small", "medium", "large-v3", "turbo"]
+            if request.model_size.lower() not in valid_model_sizes:
+                raise HTTPException(status_code=400, detail=f"Invalid model size. Choose from: {', '.join(valid_model_sizes)}")
         
         # Construct the path to the audio file
         session_dir = os.path.join(STORAGE_DIR, request.date_folder, request.session_folder)
@@ -130,7 +133,12 @@ async def transcribe(request: TranscriptionRequest):
             raise HTTPException(status_code=404, detail="Audio file not found")
         start_time = time.time()
         # Transcribe the audio
-        transcription = transcribe_with_pool(audio_path, request.language, request.model_size)
+        if request.use_hf_model:
+            logger.info("Using HuggingFace Whisper model for transcription")
+            transcription = transcribe_with_hf(audio_path, request.language)
+        else:
+            logger.info(f"Using standard Whisper model '{request.model_size}' for transcription")
+            transcription = transcribe_with_pool(audio_path, request.language, request.model_size)
         end_time = time.time()
         # Save the transcription
         duration = end_time - start_time
@@ -156,15 +164,14 @@ async def transcribe(request: TranscriptionRequest):
 @app.get("/api/preload-model")
 async def preload_model_endpoint():
     try:
-
         start_time = time.time()
-        # Transcribe the audio
-        # Preload the large-v3 model
-        logger.info("Preloading large-v3 model at startup...")
-        preload_model("large-v3")
+        # Preload all models
+        logger.info("Preloading models at startup...")
+        from model_preload import preload_all_models
+        preload_all_models()
         end_time = time.time()
         duration = end_time - start_time
-        return {"message": f"Model preloaded successfully in {duration:.3f} seconds"}
+        return {"message": f"Models preloaded successfully in {duration:.3f} seconds"}
     except Exception as e:
         logger.error(f"Error during startup: {str(e)}")
 
